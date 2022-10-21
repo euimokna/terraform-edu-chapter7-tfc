@@ -1,6 +1,7 @@
 terraform {
   cloud {
-    organization = "euimok-org"
+    #organization = "euimok-org"
+    organization = "MZC_CTC"
     hostname     = "app.terraform.io" # default
 
     workspaces {
