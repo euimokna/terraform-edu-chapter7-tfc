@@ -17,32 +17,32 @@ variable "subnet_prefix" {
   default     = "10.0.10.0/24"
 }
 
-variable "instance_type" {
-  description = "Specifies the AWS instance type."
-  default     = "t3.micro"
-}
+// variable "instance_type" {
+//   description = "Specifies the AWS instance type."
+//   default     = "t3.micro"
+// }
 
-variable "height" {
-  default     = "400"
-  description = "Image height in pixels."
-}
+// variable "height" {
+//   default     = "400"
+//   description = "Image height in pixels."
+// }
 
-variable "width" {
-  default     = "600"
-  description = "Image width in pixels."
-}
+// variable "width" {
+//   default     = "600"
+//   description = "Image width in pixels."
+// }
 
-variable "placeholder" {
-  default     = "placekitten.com"
-  description = "Image-as-a-service URL. Some other fun ones to try are fillmurray.com, placecage.com, placebeard.it, loremflickr.com, baconmockup.com, placeimg.com, placebear.com, placeskull.com, stevensegallery.com, placedog.net"
-}
+// variable "placeholder" {
+//   default     = "placekitten.com"
+//   description = "Image-as-a-service URL. Some other fun ones to try are fillmurray.com, placecage.com, placebeard.it, loremflickr.com, baconmockup.com, placeimg.com, placebear.com, placeskull.com, stevensegallery.com, placedog.net"
+// }
 
-variable "ec2_count" {
-  default     = 1
-  description = "ec2 instance count"
+// variable "ec2_count" {
+//   default     = 1
+//   description = "ec2 instance count"
 
-  validation {
-    condition     = var.ec2_count > 0
-    error_message = "The ec2_count value caanot set Zero"
-  }
-}
+//   validation {
+//     condition     = var.ec2_count > 0
+//     error_message = "The ec2_count value caanot set Zero"
+//   }
+// }

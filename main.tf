@@ -5,7 +5,7 @@ terraform {
     hostname     = "app.terraform.io" # default
 
     workspaces {
-      name = "terraform-edu-chapter7-tfc"
+      name = "terraform-edu-chapter7-network"
     }
   }
   required_providers {
@@ -49,6 +49,13 @@ resource "aws_security_group" "hashicat" {
   name = "${var.prefix}-security-group"
 
   vpc_id = aws_vpc.hashicat.id
+
+  ingress {
+    from_port   = 8080
+    to_port     = 8080
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
 
   ingress {
     from_port   = 22
@@ -106,49 +113,49 @@ resource "aws_route_table_association" "hashicat" {
   route_table_id = aws_route_table.hashicat.id
 }
 
-data "aws_ami" "ubuntu" {
-  most_recent = true
-  owners      = ["099720109477"] # Canonical
+// data "aws_ami" "ubuntu" {
+//   most_recent = true
+//   owners      = ["099720109477"] # Canonical
 
-  filter {
-    name   = "name"
-    values = ["ubuntu/images/hvm-ssd/ubuntu-focal-20.04-amd64-server-*"]
-  }
+//   filter {
+//     name   = "name"
+//     values = ["ubuntu/images/hvm-ssd/ubuntu-focal-20.04-amd64-server-*"]
+//   }
 
-  filter {
-    name   = "virtualization-type"
-    values = ["hvm"]
-  }
-}
+//   filter {
+//     name   = "virtualization-type"
+//     values = ["hvm"]
+//   }
+// }
 
-resource "aws_eip" "hashicat" {
-  count    = var.ec2_count
-  #instance = aws_instance.hashicat.id
-  instance = aws_instance.hashicat[count.index].id
-  vpc      = true
-}
+// resource "aws_eip" "hashicat" {
+//   count    = var.ec2_count
+//   #instance = aws_instance.hashicat.id
+//   instance = aws_instance.hashicat[count.index].id
+//   vpc      = true
+// }
 
-resource "aws_eip_association" "hashicat" {
-  count         = var.ec2_count
-  #instance_id   = aws_instance.hashicat.id
-  instance_id   = aws_instance.hashicat[count.index].id
-  #allocation_id = aws_eip.hashicat.id
-  allocation_id = aws_eip.hashicat[count.index].id
-}
+// resource "aws_eip_association" "hashicat" {
+//   count         = var.ec2_count
+//   #instance_id   = aws_instance.hashicat.id
+//   instance_id   = aws_instance.hashicat[count.index].id
+//   #allocation_id = aws_eip.hashicat.id
+//   allocation_id = aws_eip.hashicat[count.index].id
+// }
 
-resource "aws_instance" "hashicat" {
-  count                       = var.ec2_count
-  ami                         = data.aws_ami.ubuntu.id
-  instance_type               = var.instance_type
-  key_name                    = aws_key_pair.hashicat.key_name
-  associate_public_ip_address = true
-  subnet_id                   = aws_subnet.hashicat.id
-  vpc_security_group_ids      = [aws_security_group.hashicat.id]
+// resource "aws_instance" "hashicat" {
+//   count                       = var.ec2_count
+//   ami                         = data.aws_ami.ubuntu.id
+//   instance_type               = var.instance_type
+//   key_name                    = aws_key_pair.hashicat.key_name
+//   associate_public_ip_address = true
+//   subnet_id                   = aws_subnet.hashicat.id
+//   vpc_security_group_ids      = [aws_security_group.hashicat.id]
 
-  tags = {
-    Name = "${var.prefix}_hashicat_instance"
-  }
-}
+//   tags = {
+//     Name = "${var.prefix}_hashicat_instance"
+//   }
+// }
 
 # We're using a little trick here so we can run the provisioner without
 # destroying the VM. Do not do this in production.
@@ -162,49 +169,49 @@ resource "aws_instance" "hashicat" {
 # Set up some environment variables for our script.
 # Add execute permissions to our scripts.
 # Run the deploy_app.sh script.
-resource "null_resource" "configure-cat-app" {
-  count      = var.ec2_count
+// resource "null_resource" "configure-cat-app" {
+//   count      = var.ec2_count
 
-  depends_on = [aws_eip_association.hashicat]
+//   depends_on = [aws_eip_association.hashicat]
 
-  // triggers = {
-  //   build_number = timestamp()
-  // }
+//   // triggers = {
+//   //   build_number = timestamp()
+//   // }
 
-  provisioner "file" {
-    source      = "files/"
-    destination = "/home/ubuntu/"
+//   provisioner "file" {
+//     source      = "files/"
+//     destination = "/home/ubuntu/"
 
-    connection {
-      type        = "ssh"
-      user        = "ubuntu"
-      private_key = tls_private_key.hashicat.private_key_pem
-      host        = aws_eip.hashicat[count.index].public_ip
-    }
-  }
+//     connection {
+//       type        = "ssh"
+//       user        = "ubuntu"
+//       private_key = tls_private_key.hashicat.private_key_pem
+//       host        = aws_eip.hashicat[count.index].public_ip
+//     }
+//   }
 
-  provisioner "remote-exec" {
-    inline = [
-      "sudo apt -y update",
-      "sleep 15",
-      "sudo apt -y update",
-      "sudo apt -y install apache2",
-      "sudo systemctl start apache2",
-      "sudo chown -R ubuntu:ubuntu /var/www/html",
-      "chmod +x *.sh",
-      "PLACEHOLDER=${var.placeholder} WIDTH=${var.width} HEIGHT=${var.height} PREFIX=${var.prefix} ./deploy_app.sh",
-      "sudo apt -y install cowsay",
-      "cowsay Mooooooooooo!",
-    ]
+//   provisioner "remote-exec" {
+//     inline = [
+//       "sudo apt -y update",
+//       "sleep 15",
+//       "sudo apt -y update",
+//       "sudo apt -y install apache2",
+//       "sudo systemctl start apache2",
+//       "sudo chown -R ubuntu:ubuntu /var/www/html",
+//       "chmod +x *.sh",
+//       "PLACEHOLDER=${var.placeholder} WIDTH=${var.width} HEIGHT=${var.height} PREFIX=${var.prefix} ./deploy_app.sh",
+//       "sudo apt -y install cowsay",
+//       "cowsay Mooooooooooo!",
+//     ]
 
-    connection {
-      type        = "ssh"
-      user        = "ubuntu"
-      private_key = tls_private_key.hashicat.private_key_pem
-      host        = aws_eip.hashicat[count.index].public_ip
-    }
-  }
-}
+//     connection {
+//       type        = "ssh"
+//       user        = "ubuntu"
+//       private_key = tls_private_key.hashicat.private_key_pem
+//       host        = aws_eip.hashicat[count.index].public_ip
+//     }
+//   }
+// }
 
 resource "tls_private_key" "hashicat" {
   algorithm = "RSA"
