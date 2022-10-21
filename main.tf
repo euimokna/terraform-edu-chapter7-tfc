@@ -123,14 +123,17 @@ data "aws_ami" "ubuntu" {
 
 resource "aws_eip" "hashicat" {
   count    = var.ec2_count
-  instance = aws_instance.hashicat.id
+  #instance = aws_instance.hashicat.id
+  instance = aws_instance.hashicat[count.index].id
   vpc      = true
 }
 
 resource "aws_eip_association" "hashicat" {
   count         = var.ec2_count
-  instance_id   = aws_instance.hashicat.id
-  allocation_id = aws_eip.hashicat.id
+  #instance_id   = aws_instance.hashicat.id
+  instance_id   = aws_instance.hashicat[count.index].id
+  #allocation_id = aws_eip.hashicat.id
+  allocation_id = aws_eip.hashicat[count.index].id
 }
 
 resource "aws_instance" "hashicat" {
